@@ -10,7 +10,7 @@
     - NSF Recovery：啟動時透過 LoadAll() 讀取 DB，解析 JSON 並恢復服務表
 - 測試結果
     - docker test ![alt text](src/img/image.png)
-    - GitHub Actions
+    - GitHub Actions ![](src/img/螢幕擷取畫面%202026-11-08%20154914.png)
 - DB 抽換
     - 使用的 DB: 預設用 bbolt，自訂 DB 使用 MongoDB，兩者皆實作相同的 `DbIf` 介面。MongoDB 目前使用預設連線 `mongodb://127.0.0.1:27017`，資料存放於 `nsf.services`。
     - 切換方式: 先啟動 MongoDB，將 `config.yaml` 的 `nsf.db_type` 從 `"bbolt"` 改成 `"custom"`
