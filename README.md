@@ -60,6 +60,40 @@ There are `TODO` keywords at sections that you need to implement. So, you can tr
     docker run --rm -v <absolute path to your local directory>:/work alonza0314/nsf-tester:latest
     ```
 
+## Migrate bbolt services to MongoDB
+
+Stop NSF before migrating so the source bbolt file is unlocked. Normal NSF startup
+does not migrate data automatically. The source file is retained as a backup.
+
+Preview the source and target counts without copying records:
+
+```bash
+go run ./cmd/db-migrate --source /tmp/nsf.db \
+  --uri mongodb://127.0.0.1:27017 --database nsf_migration_demo --dry-run
+```
+
+Remove `--dry-run` to copy and verify every service key and value. The target
+`services` collection must be empty. A failed import may leave partial target
+data; use a new target database before retrying. Do not run multiple migration
+tools or another writer against the target at the same time.
+
+After migration, select the same target in `config.yaml`, then run `make` and
+`make run`:
+
+```yaml
+nsf:
+  sbi_address: "0.0.0.0"
+  sbi_port: 8000
+  db_type: "custom"
+  mongodb:
+    uri: "mongodb://127.0.0.1:27017"
+    name: "nsf_migration_demo"
+```
+
+Query the original services without registering them again. Restore `db_type`
+to `"bbolt"` for the final assignment submission. Switching back uses the retained
+bbolt data; changes made in MongoDB are not copied back automatically.
+
 ## SBI Model
 
 ### nnsf-nfm

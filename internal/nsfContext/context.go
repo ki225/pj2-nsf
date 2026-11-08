@@ -1,9 +1,14 @@
 package nsfContext
 
-import "nsf/logger"
+import (
+	"nsf/internal/db"
+	"nsf/logger"
+	"nsf/model"
+)
 
 type NsfContextIE struct {
-	DbType string
+	DbType  string
+	MongoDB model.MongoDBIE
 
 	*logger.NsfLogger
 }
@@ -16,11 +21,7 @@ type NsfContext struct {
 }
 
 func NewNsfContext(nsfContextIE *NsfContextIE) *NsfContext {
-	dbContext, err := newDbContext(&dbContextIE{
-		dbType: nsfContextIE.DbType,
-
-		NsfLogger: nsfContextIE.NsfLogger,
-	})
+	dbContext, err := newNsfDbContext(nsfContextIE)
 	if err != nil {
 		nsfContextIE.NsfLogger.CtxLog.Errorf("Failed to create dbContext: %v", err)
 		return nil
@@ -31,12 +32,32 @@ func NewNsfContext(nsfContextIE *NsfContextIE) *NsfContext {
 		NsfLogger: nsfContextIE.NsfLogger,
 	})
 
+	if serviceContext == nil {
+		dbContext.release()
+		return nil
+	}
+
 	return &NsfContext{
 		serviceContext: serviceContext,
 		dbContext:      dbContext,
 
 		NsfLogger: nsfContextIE.NsfLogger,
 	}
+}
+
+// Keep dbContext.go unchanged while supplying the optional custom DB settings.
+func newNsfDbContext(nsfContextIE *NsfContextIE) (*dbContext, error) {
+	if nsfContextIE.DbType != "custom" {
+		return newDbContext(&dbContextIE{
+			dbType:    nsfContextIE.DbType,
+			NsfLogger: nsfContextIE.NsfLogger,
+		})
+	}
+	store, err := db.NewDb("custom", nsfContextIE.MongoDB)
+	if err != nil {
+		return nil, err
+	}
+	return &dbContext{db: store, NsfLogger: nsfContextIE.NsfLogger}, nil
 }
 
 func (c *NsfContext) Release() {

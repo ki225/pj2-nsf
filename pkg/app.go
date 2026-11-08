@@ -30,9 +30,10 @@ func NewApp(configFilePath string) (*App, error) {
 	server := sbi.NewServer(&sbi.ServerIE{
 		SbiAddress: fmt.Sprintf("%s:%d", config.Nsf.SbiAddress, config.Nsf.SbiPort),
 
-		DbType:    config.Nsf.DbType,
+		DbType:  config.Nsf.DbType,
+		MongoDB: config.Nsf.MongoDB,
 
-		NsfLogger:  &logger,
+		NsfLogger: &logger,
 	})
 
 	return &App{

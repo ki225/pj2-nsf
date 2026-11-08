@@ -6,6 +6,7 @@ import (
 	"nsf/internal/sbi/consumer"
 	"nsf/internal/sbi/processor"
 	"nsf/logger"
+	"nsf/model"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,8 @@ import (
 type ServerIE struct {
 	SbiAddress string
 
-	DbType string
+	DbType  string
+	MongoDB model.MongoDBIE
 
 	*logger.NsfLogger
 }
@@ -36,9 +38,10 @@ func NewServer(serverIE *ServerIE) *Server {
 		NsfLogger: serverIE.NsfLogger,
 	})
 	proc := processor.NewProcessor(&processor.ProcessorIE{
-		Consumer:  cons,
+		Consumer: cons,
 
-		DbType: serverIE.DbType,
+		DbType:  serverIE.DbType,
+		MongoDB: serverIE.MongoDB,
 
 		NsfLogger: serverIE.NsfLogger,
 	})

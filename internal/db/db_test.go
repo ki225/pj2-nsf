@@ -3,6 +3,7 @@ package db_test
 import (
 	"fmt"
 	"nsf/internal/db"
+	"nsf/model"
 	"os"
 	"testing"
 )
@@ -12,7 +13,7 @@ func TestMain(m *testing.M) {
 
 	exitCode := m.Run()
 
-	if err := os.Remove(db.NSF_DB_PATH); err != nil {
+	if err := os.Remove(db.NSF_DB_PATH); err != nil && !os.IsNotExist(err) {
 		fmt.Printf("Failed to remove test DB file: %v\n", err)
 		exitCode = 1
 	}
@@ -46,6 +47,12 @@ var dbInstance db.DbIf
 
 func TestDb(t *testing.T) {
 	t.Run("Bbolt DB", testBboltDb)
+	t.Run("Custom DB", func(t *testing.T) {
+		if os.Getenv("NSF_TEST_CUSTOM_DB") != "1" {
+			t.Skip("set NSF_TEST_CUSTOM_DB=1 to test against a dedicated MongoDB database")
+		}
+		testCustomDb(t)
+	})
 }
 
 func testBboltDb(t *testing.T) {
@@ -66,7 +73,10 @@ func testBboltDb(t *testing.T) {
 
 func testCustomDb(t *testing.T) {
 	var err error
-	dbInstance, err = db.NewDb("custom") // TODO: change "custom" to the actual name of your custom DB implementation
+	dbInstance, err = db.NewDb("custom", model.MongoDBIE{
+		URI:  os.Getenv("NSF_MONGODB_URI"),
+		Name: os.Getenv("NSF_MONGODB_DATABASE"),
+	}) // TODO: change "custom" to the actual name of your custom DB implementation
 	if err != nil {
 		t.Fatalf("Failed to create DB instance: %v", err)
 	}

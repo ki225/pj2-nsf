@@ -4,12 +4,14 @@ import (
 	"nsf/internal/nsfContext"
 	"nsf/internal/sbi/consumer"
 	"nsf/logger"
+	"nsf/model"
 )
 
 type ProcessorIE struct {
 	*consumer.Consumer
 
-	DbType string
+	DbType  string
+	MongoDB model.MongoDBIE
 
 	*logger.NsfLogger
 }
@@ -23,7 +25,8 @@ type Processor struct {
 
 func NewProcessor(processorIE *ProcessorIE) *Processor {
 	nsfCtx := nsfContext.NewNsfContext(&nsfContext.NsfContextIE{
-		DbType: processorIE.DbType,
+		DbType:  processorIE.DbType,
+		MongoDB: processorIE.MongoDB,
 
 		NsfLogger: processorIE.NsfLogger,
 	})

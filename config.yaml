@@ -3,6 +3,9 @@ nsf:
   sbi_port: 8000
 
   db_type: "bbolt"
+  # mongodb:
+  #   uri: "mongodb://127.0.0.1:27017"
+  #   name: "nsf"
 
 logger:
   level: "info"

@@ -9,7 +9,13 @@ type NsfIE struct {
 	SbiAddress string `yaml:"sbi_address" validate:"required"`
 	SbiPort    int    `yaml:"sbi_port" validate:"required"`
 
-	DbType string `yaml:"db_type" validate:"required"`
+	DbType  string    `yaml:"db_type" validate:"required"`
+	MongoDB MongoDBIE `yaml:"mongodb"`
+}
+
+type MongoDBIE struct {
+	URI  string `yaml:"uri"`
+	Name string `yaml:"name"`
 }
 
 type LoggerIE struct {
